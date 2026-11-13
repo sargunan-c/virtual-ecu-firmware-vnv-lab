@@ -207,7 +207,7 @@ The project generates test reports in three formats:
 The HTML dashboard provides a visual representation of the generated test results.
 
 **Live Dashboard:**  
-[Open Virtual ECU Test Dashboard](YOUR_VERCEL_URL/dashboard.html)
+[Open Virtual ECU Test Dashboard](https://virtual-ecu-firmware-vnv-lab.vercel.app/dashboard.html)
 
 > Replace `YOUR_VERCEL_URL` with the actual Vercel deployment URL after deployment.
 
