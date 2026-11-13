@@ -1,0 +1,15 @@
+# Compiler and Build outputs
+firmware/build/*.o
+firmware/build/*.obj
+*.o
+*.obj
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# OS Specific
+.DS_Store
+Thumbs.db

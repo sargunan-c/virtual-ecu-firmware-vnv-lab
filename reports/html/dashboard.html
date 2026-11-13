@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual ECU V&V Automation Lab - Test Dashboard</title>
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #131b2e;
+            --bg-card: #1c2640;
+            --accent-blue: #0088ff;
+            --accent-green: #00d26a;
+            --accent-red: #f8312f;
+            --accent-amber: #f5a623;
+            --text-main: #f0f4f8;
+            --text-muted: #8a99ad;
+            --border-color: #273656;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        body {
+            background: var(--bg-primary);
+            color: var(--text-main);
+            padding: 24px;
+            min-height: 100vh;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 24px;
+        }
+        .header-title h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+        .header-title p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        .timestamp-badge {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .kpi-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 800;
+        }
+        .kpi-value.pass { color: var(--accent-green); }
+        .kpi-value.rate { color: var(--accent-blue); }
+        .kpi-value.time { color: #ffffff; }
+        
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 900px) {
+            .charts-row { grid-template-columns: 1fr; }
+        }
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .progress-bar-container {
+            background: #273656;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #00d26a, #0088ff);
+            height: 100%;
+            border-radius: 6px;
+        }
+        .module-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 14px;
+        }
+        .module-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--bg-card);
+            border-radius: 6px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        th {
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .badge.pass {
+            background: rgba(0, 210, 106, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(0, 210, 106, 0.3);
+        }
+        .badge.fail {
+            background: rgba(248, 49, 47, 0.15);
+            color: var(--accent-red);
+            border: 1px solid rgba(248, 49, 47, 0.3);
+        }
+        .category-pill {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--accent-blue);
+        }
+        code {
+            background: var(--bg-card);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: "Consolas", monospace;
+            font-size: 12px;
+            color: #d1d5db;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 36px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">
+            <h1>Automotive Virtual ECU V&V Automation Lab</h1>
+            <p>ISO 26262 ASIL-B & ISO 14229 UDS Diagnostic Firmware Automated Test Results</p>
+        </div>
+        <div class="timestamp-badge">
+            Generated: 2026-11-13 10:45:52
+        </div>
+    </div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <span class="kpi-label">Total Test Cases</span>
+            <span class="kpi-value time">25</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">Tests Passed</span>
+            <span class="kpi-value pass">25</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">Tests Failed</span>
+            <span class="kpi-value" style="color: #8a99ad">
+                0
+            </span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">Pass Rate</span>
+            <span class="kpi-value rate">100.0%</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">Execution Duration</span>
+            <span class="kpi-value time">4.17s</span>
+        </div>
+    </div>
+
+    <div class="charts-row">
+        <div class="card">
+            <div class="card-title">
+                <span>Test Coverage by Category</span>
+                <span class="badge pass">100% Pass</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" style="width: 100.0%;"></div>
+            </div>
+            <ul class="module-list">
+                <li class="module-item">
+                    <span>Boundary Value Analysis (BVT)</span>
+                    <strong>7 / 7 PASSED</strong>
+                </li>
+                <li class="module-item">
+                    <span>Fault Injection & Recovery (FDIR)</span>
+                    <strong>5 / 5 PASSED</strong>
+                </li>
+                <li class="module-item">
+                    <span>Functional & State Transitions</span>
+                    <strong>5 / 5 PASSED</strong>
+                </li>
+                <li class="module-item">
+                    <span>Negative & Error Handling</span>
+                    <strong>5 / 5 PASSED</strong>
+                </li>
+                <li class="module-item">
+                    <span>Sensor Validation & Dual Throttle</span>
+                    <strong>3 / 3 PASSED</strong>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <div class="card-title">
+                <span>ECU State Machine Coverage</span>
+                <span class="badge pass">7 / 7 Verified</span>
+            </div>
+            <ul class="module-list">
+                <li class="module-item">
+                    <span>ECU_STATE_OFF</span>
+                    <span class="badge pass">Covered</span>
+                </li>
+                <li class="module-item">
+                    <span>ECU_STATE_INIT (POST)</span>
+                    <span class="badge pass">Covered</span>
+                </li>
+                <li class="module-item">
+                    <span>ECU_STATE_STANDBY</span>
+                    <span class="badge pass">Covered</span>
+                </li>
+                <li class="module-item">
+                    <span>ECU_STATE_RUNNING</span>
+                    <span class="badge pass">Covered</span>
+                </li>
+                <li class="module-item">
+                    <span>ECU_STATE_DEGRADED (Limp-Home)</span>
+                    <span class="badge pass">Covered</span>
+                </li>
+                <li class="module-item">
+                    <span>ECU_STATE_ERROR (Emergency Stop)</span>
+                    <span class="badge pass">Covered</span>
+                </li>
+                <li class="module-item">
+                    <span>ECU_STATE_SHUTDOWN</span>
+                    <span class="badge pass">Covered</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">
+            <span>Automated Test Execution Details & Traceability</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Test ID</th>
+                    <th>Category</th>
+                    <th>Test Objective</th>
+                    <th>SRS Requirement</th>
+                    <th>Duration</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            <tr>
+                <td><strong>TC-001</strong></td>
+                <td><span class="category-pill">Boundary</span></td>
+                <td>ECT Valid Lower Bound (-39°C)</td>
+                <td><code>REQ-BVT-001</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-002</strong></td>
+                <td><span class="category-pill">Boundary</span></td>
+                <td>ECT Below Lower Bound triggers P0117</td>
+                <td><code>REQ-BVT-002</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-003</strong></td>
+                <td><span class="category-pill">Boundary</span></td>
+                <td>ECT Valid Upper Bound (139°C)</td>
+                <td><code>REQ-BVT-003</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-004</strong></td>
+                <td><span class="category-pill">Boundary</span></td>
+                <td>ECT Above Upper Bound triggers P0118</td>
+                <td><code>REQ-BVT-004</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-005</strong></td>
+                <td><span class="category-pill">Boundary</span></td>
+                <td>ECT Overheat Boundary triggers P0217 Emergency Stop</td>
+                <td><code>REQ-BVT-005</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-006</strong></td>
+                <td><span class="category-pill">Boundary</span></td>
+                <td>Battery Voltage 8.5V - 16.5V Limits</td>
+                <td><code>REQ-BVT-006</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-007</strong></td>
+                <td><span class="category-pill">Boundary</span></td>
+                <td>TPS 0% - 100% Clamping</td>
+                <td><code>REQ-BVT-007</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-008</strong></td>
+                <td><span class="category-pill">Fault Recovery</span></td>
+                <td>ECT Short to GND Debounce & Healing</td>
+                <td><code>REQ-FDIR-001</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-009</strong></td>
+                <td><span class="category-pill">Fault Recovery</span></td>
+                <td>ASIL-B Dual TPS Mismatch Emergency Stop</td>
+                <td><code>REQ-FDIR-002</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-010</strong></td>
+                <td><span class="category-pill">Fault Recovery</span></td>
+                <td>Thermal Overheat Emergency Stop & Max Cooling</td>
+                <td><code>REQ-FDIR-003</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-011</strong></td>
+                <td><span class="category-pill">Fault Recovery</span></td>
+                <td>CAN Loss & Heartbeat Recovery</td>
+                <td><code>REQ-FDIR-004</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-012</strong></td>
+                <td><span class="category-pill">Fault Recovery</span></td>
+                <td>MAP Sensor Circuit High & Fallback Map</td>
+                <td><code>REQ-FDIR-005</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-013</strong></td>
+                <td><span class="category-pill">Functional</span></td>
+                <td>ECU Reset to State OFF</td>
+                <td><code>REQ-FSM-001</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-014</strong></td>
+                <td><span class="category-pill">Functional</span></td>
+                <td>Ignition ON triggers POST to STANDBY</td>
+                <td><code>REQ-FSM-002</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-015</strong></td>
+                <td><span class="category-pill">Functional</span></td>
+                <td>Crank to RUNNING State Transition</td>
+                <td><code>REQ-FSM-003</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-016</strong></td>
+                <td><span class="category-pill">Functional</span></td>
+                <td>Closed-loop Injection & Spark Advance</td>
+                <td><code>REQ-ACT-001</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-017</strong></td>
+                <td><span class="category-pill">Functional</span></td>
+                <td>Ignition OFF Controlled Shutdown</td>
+                <td><code>REQ-FSM-004</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-018</strong></td>
+                <td><span class="category-pill">Sensors</span></td>
+                <td>Cold Start Fuel Enrichment below 60°C</td>
+                <td><code>REQ-SENS-001</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-019</strong></td>
+                <td><span class="category-pill">Sensors</span></td>
+                <td>Cooling Fan Dual-Threshold Activation</td>
+                <td><code>REQ-ACT-002</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-020</strong></td>
+                <td><span class="category-pill">Sensors</span></td>
+                <td>Dual Throttle Correlation Sum Check</td>
+                <td><code>REQ-SENS-002</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-021</strong></td>
+                <td><span class="category-pill">Negative</span></td>
+                <td>Negative Throttle Value Clamping & P0122</td>
+                <td><code>REQ-NEG-001</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-022</strong></td>
+                <td><span class="category-pill">Negative</span></td>
+                <td>Over-range Throttle >100% & P0123</td>
+                <td><code>REQ-NEG-002</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-023</strong></td>
+                <td><span class="category-pill">Negative</span></td>
+                <td>Starter Interlock Lockout during Engine Running</td>
+                <td><code>REQ-NEG-003</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-024</strong></td>
+                <td><span class="category-pill">Negative</span></td>
+                <td>Electrical Collapse & Low Voltage Fault</td>
+                <td><code>REQ-NEG-004</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+                <td><strong>TC-025</strong></td>
+                <td><span class="category-pill">Negative</span></td>
+                <td>Disallow Crank Transition without Ignition</td>
+                <td><code>REQ-NEG-005</code></td>
+                <td>12.5 ms</td>
+                <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer">
+        Virtual ECU Firmware Verification & Validation Automation Lab • Embedded C11 / Python Automation / Pytest
+    </div>
+</body>
+</html>

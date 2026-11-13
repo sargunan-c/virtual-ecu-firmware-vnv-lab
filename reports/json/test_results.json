@@ -1,0 +1,267 @@
+{
+  "timestamp": "2026-11-13 10:45:52",
+  "total_tests": 25,
+  "passed_tests": 25,
+  "failed_tests": 0,
+  "pass_rate": 100.0,
+  "execution_time_s": 4.17,
+  "categories": {
+    "Boundary": 7,
+    "Fault Recovery": 5,
+    "Functional": 5,
+    "Sensors": 3,
+    "Negative": 5
+  },
+  "tests": [
+    {
+      "id": "TC-001",
+      "name": "ECT Valid Lower Bound (-39\u00b0C)",
+      "function": "test_ect_lower_valid_boundary",
+      "file": "tests/boundary/test_boundary_values.py",
+      "req_id": "REQ-BVT-001",
+      "category": "Boundary",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-002",
+      "name": "ECT Below Lower Bound triggers P0117",
+      "function": "test_ect_below_lower_boundary_triggers_fault",
+      "file": "tests/boundary/test_boundary_values.py",
+      "req_id": "REQ-BVT-002",
+      "category": "Boundary",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-003",
+      "name": "ECT Valid Upper Bound (139\u00b0C)",
+      "function": "test_ect_upper_valid_boundary",
+      "file": "tests/boundary/test_boundary_values.py",
+      "req_id": "REQ-BVT-003",
+      "category": "Boundary",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-004",
+      "name": "ECT Above Upper Bound triggers P0118",
+      "function": "test_ect_above_upper_boundary_triggers_circuit_high",
+      "file": "tests/boundary/test_boundary_values.py",
+      "req_id": "REQ-BVT-004",
+      "category": "Boundary",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-005",
+      "name": "ECT Overheat Boundary triggers P0217 Emergency Stop",
+      "function": "test_ect_overheat_critical_boundary",
+      "file": "tests/boundary/test_boundary_values.py",
+      "req_id": "REQ-BVT-005",
+      "category": "Boundary",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-006",
+      "name": "Battery Voltage 8.5V - 16.5V Limits",
+      "function": "test_battery_voltage_boundaries",
+      "file": "tests/boundary/test_boundary_values.py",
+      "req_id": "REQ-BVT-006",
+      "category": "Boundary",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-007",
+      "name": "TPS 0% - 100% Clamping",
+      "function": "test_throttle_limits_and_clamping",
+      "file": "tests/boundary/test_boundary_values.py",
+      "req_id": "REQ-BVT-007",
+      "category": "Boundary",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-008",
+      "name": "ECT Short to GND Debounce & Healing",
+      "function": "test_ect_short_gnd_fault_qualification_and_recovery",
+      "file": "tests/fault_recovery/test_fault_detection_recovery.py",
+      "req_id": "REQ-FDIR-001",
+      "category": "Fault Recovery",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-009",
+      "name": "ASIL-B Dual TPS Mismatch Emergency Stop",
+      "function": "test_asil_b_dual_tps_mismatch_emergency_stop",
+      "file": "tests/fault_recovery/test_fault_detection_recovery.py",
+      "req_id": "REQ-FDIR-002",
+      "category": "Fault Recovery",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-010",
+      "name": "Thermal Overheat Emergency Stop & Max Cooling",
+      "function": "test_critical_thermal_overheat_emergency_stop",
+      "file": "tests/fault_recovery/test_fault_detection_recovery.py",
+      "req_id": "REQ-FDIR-003",
+      "category": "Fault Recovery",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-011",
+      "name": "CAN Loss & Heartbeat Recovery",
+      "function": "test_can_communication_timeout_and_recovery",
+      "file": "tests/fault_recovery/test_fault_detection_recovery.py",
+      "req_id": "REQ-FDIR-004",
+      "category": "Fault Recovery",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-012",
+      "name": "MAP Sensor Circuit High & Fallback Map",
+      "function": "test_map_sensor_fault_injection_and_fallback",
+      "file": "tests/fault_recovery/test_fault_detection_recovery.py",
+      "req_id": "REQ-FDIR-005",
+      "category": "Fault Recovery",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-013",
+      "name": "ECU Reset to State OFF",
+      "function": "test_ecu_initial_state_off",
+      "file": "tests/functional/test_normal_operation.py",
+      "req_id": "REQ-FSM-001",
+      "category": "Functional",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-014",
+      "name": "Ignition ON triggers POST to STANDBY",
+      "function": "test_ecu_power_on_and_post_sequence",
+      "file": "tests/functional/test_normal_operation.py",
+      "req_id": "REQ-FSM-002",
+      "category": "Functional",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-015",
+      "name": "Crank to RUNNING State Transition",
+      "function": "test_engine_cranking_to_running",
+      "file": "tests/functional/test_normal_operation.py",
+      "req_id": "REQ-FSM-003",
+      "category": "Functional",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-016",
+      "name": "Closed-loop Injection & Spark Advance",
+      "function": "test_fuel_injection_and_spark_advance_dynamics",
+      "file": "tests/functional/test_normal_operation.py",
+      "req_id": "REQ-ACT-001",
+      "category": "Functional",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-017",
+      "name": "Ignition OFF Controlled Shutdown",
+      "function": "test_graceful_shutdown_on_ignition_off",
+      "file": "tests/functional/test_normal_operation.py",
+      "req_id": "REQ-FSM-004",
+      "category": "Functional",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-018",
+      "name": "Cold Start Fuel Enrichment below 60\u00b0C",
+      "function": "test_cold_start_fuel_enrichment",
+      "file": "tests/functional/test_sensor_validation.py",
+      "req_id": "REQ-SENS-001",
+      "category": "Sensors",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-019",
+      "name": "Cooling Fan Dual-Threshold Activation",
+      "function": "test_cooling_fan_activation_thresholds",
+      "file": "tests/functional/test_sensor_validation.py",
+      "req_id": "REQ-ACT-002",
+      "category": "Sensors",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-020",
+      "name": "Dual Throttle Correlation Sum Check",
+      "function": "test_dual_throttle_correlation_valid",
+      "file": "tests/functional/test_sensor_validation.py",
+      "req_id": "REQ-SENS-002",
+      "category": "Sensors",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-021",
+      "name": "Negative Throttle Value Clamping & P0122",
+      "function": "test_negative_throttle_input_triggers_circuit_low",
+      "file": "tests/negative/test_negative_scenarios.py",
+      "req_id": "REQ-NEG-001",
+      "category": "Negative",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-022",
+      "name": "Over-range Throttle >100% & P0123",
+      "function": "test_over_range_throttle_input_triggers_circuit_high",
+      "file": "tests/negative/test_negative_scenarios.py",
+      "req_id": "REQ-NEG-002",
+      "category": "Negative",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-023",
+      "name": "Starter Interlock Lockout during Engine Running",
+      "function": "test_starter_lockout_while_engine_running",
+      "file": "tests/negative/test_negative_scenarios.py",
+      "req_id": "REQ-NEG-003",
+      "category": "Negative",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-024",
+      "name": "Electrical Collapse & Low Voltage Fault",
+      "function": "test_zero_voltage_electrical_collapse",
+      "file": "tests/negative/test_negative_scenarios.py",
+      "req_id": "REQ-NEG-004",
+      "category": "Negative",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    },
+    {
+      "id": "TC-025",
+      "name": "Disallow Crank Transition without Ignition",
+      "function": "test_invalid_state_transition_no_crank_without_ignition",
+      "file": "tests/negative/test_negative_scenarios.py",
+      "req_id": "REQ-NEG-005",
+      "category": "Negative",
+      "duration_ms": 12.5,
+      "status": "PASSED"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "test_profiles": [
+    {
+      "name": "NOMINAL_CRUISE",
+      "coolant_temp_c": 88.5,
+      "throttle_pos_pct": 22.0,
+      "manifold_pressure_kpa": 65.0,
+      "battery_voltage_v": 14.1,
+      "engine_rpm": 2200,
+      "expected_state": "RUNNING",
+      "expected_fan": 0,
+      "expected_mil": 0
+    },
+    {
+      "name": "WARMUP_COLD",
+      "coolant_temp_c": 20.0,
+      "throttle_pos_pct": 10.0,
+      "manifold_pressure_kpa": 45.0,
+      "battery_voltage_v": 13.9,
+      "engine_rpm": 1100,
+      "expected_state": "RUNNING",
+      "expected_fan": 0,
+      "expected_mil": 0
+    },
+    {
+      "name": "OVERHEAT_WARNING",
+      "coolant_temp_c": 106.0,
+      "throttle_pos_pct": 25.0,
+      "manifold_pressure_kpa": 70.0,
+      "battery_voltage_v": 13.8,
+      "engine_rpm": 2400,
+      "expected_state": "RUNNING",
+      "expected_fan": 2,
+      "expected_mil": 0
+    },
+    {
+      "name": "OVERHEAT_CRITICAL",
+      "coolant_temp_c": 122.0,
+      "throttle_pos_pct": 25.0,
+      "manifold_pressure_kpa": 70.0,
+      "battery_voltage_v": 13.8,
+      "engine_rpm": 2400,
+      "expected_state": "ERROR",
+      "expected_fan": 2,
+      "expected_mil": 2,
+      "expected_dtc": "0x0217"
+    },
+    {
+      "name": "UNDERVOLTAGE_WARN",
+      "coolant_temp_c": 85.0,
+      "throttle_pos_pct": 15.0,
+      "manifold_pressure_kpa": 50.0,
+      "battery_voltage_v": 8.0,
+      "engine_rpm": 1200,
+      "expected_state": "DEGRADED",
+      "expected_mil": 1,
+      "expected_dtc": "0x0562"
+    }
+  ]
+}
