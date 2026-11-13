@@ -130,60 +130,40 @@ Diagnostic-related functionality includes:
 
 This is a software simulation of selected diagnostic concepts, not a complete implementation or certification of the ISO 14229 standard.
 
-### 6. Safety-Oriented Validation
+### 6. Safety-Oriented Concepts (ISO 26262-Inspired)
 
-The project demonstrates selected safety-oriented verification concepts inspired by **ISO 26262**, including:
+The project includes concepts inspired by the **ISO 26262** functional safety standard:
 
-- Fault detection.
-- Sensor plausibility monitoring.
-- Safe-state-oriented behavior.
-- Degraded operating conditions.
-- Fault response validation.
+- Safe state transitions during detected failures.
+- Dual-channel sensor plausibility checks.
+- Degraded mode operation during non-critical faults.
+- Safe shutdown behavior during critical faults.
 
-These are educational and simulation-level demonstrations of safety concepts. The project is not ISO 26262 certified and does not establish an ASIL-B compliance claim.
+These mechanisms are demonstrated in a software simulation environment and do not constitute formal ISO 26262 compliance or certification.
 
-## Technology Stack
+### 7. Test Automation with Pytest
 
-| Technology | Purpose |
-|---|---|
-| Embedded C11 | Virtual ECU firmware development |
-| Python 3.14 | Test automation |
-| Pytest | Automated test execution |
-| ctypes | Python-to-C firmware integration |
-| JSON | Structured test result reporting |
-| CSV | Tabular test reporting |
-| HTML | Test dashboard and report visualization |
-| Git & GitHub | Version control and project hosting |
-| Vercel | Static dashboard deployment |
+Firmware verification is automated using Python and Pytest:
 
-## Testing and Validation
+- Execution of defined test cases.
+- Validation of firmware responses.
+- Verification of state machine transitions.
+- Assertion of diagnostic states and fault flags.
+- Generation of test logs and test outputs.
 
-The project uses Python-based automated testing to validate the Virtual ECU firmware.
+## Automated Test Results
 
-The test automation framework communicates with the C firmware through the Python `ctypes` interface.
+The automated test suite verifies core firmware functions across multiple test categories.
 
-Validation areas include:
+| Test Category | Description | Status |
+|---|---|:---:|
+| Boundary Value Testing | Sensor limits and boundary conditions | PASS |
+| Functional Testing | State transitions and normal operation | PASS |
+| Fault Injection Testing | Sensor faults and abnormal conditions | PASS |
+| Sensor Validation | Plausibility checks and sensor monitoring | PASS |
+| Negative Testing | Error handling and invalid input rejection | PASS |
 
-- ECU initialization and state transitions.
-- Normal operating behavior.
-- Sensor input validation.
-- Dual-channel TPS plausibility.
-- Fault injection.
-- Diagnostic behavior.
-- Error handling and recovery.
-- ECU shutdown behavior.
-
-### Test Execution
-
-Run the automated test suite using:
-
-```bash
-pytest -v
-```
-
-### Test Results
-
-**Reported test execution: 25 / 25 tests passed.**
+### Test Summary
 
 | Metric | Result |
 |---|---:|
@@ -192,7 +172,7 @@ pytest -v
 | Failed | 0 |
 | Pass Rate | 100% |
 
-The results above represent the reported execution of this project’s automated test suite. They do not represent complete automotive system validation or certification.
+The results above represent the reported execution of this project's automated test suite. They do not represent complete automotive system validation or certification.
 
 ## Test Reports and Dashboard
 
@@ -208,8 +188,6 @@ The HTML dashboard provides a visual representation of the generated test result
 
 **Live Dashboard:**  
 [Open Virtual ECU Test Dashboard](https://virtual-ecu-firmware-vnv-lab.vercel.app/dashboard.html)
-
-> Replace `YOUR_VERCEL_URL` with the actual Vercel deployment URL after deployment.
 
 ## Repository Structure
 

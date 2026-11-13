@@ -1,26 +1,27 @@
-Test ID,Category,Description,Function,SRS Req,Status,Duration (ms)
-TC-001,Boundary,ECT Valid Lower Bound (-39°C),test_ect_lower_valid_boundary,REQ-BVT-001,PASSED,12.5
-TC-002,Boundary,ECT Below Lower Bound triggers P0117,test_ect_below_lower_boundary_triggers_fault,REQ-BVT-002,PASSED,12.5
-TC-003,Boundary,ECT Valid Upper Bound (139°C),test_ect_upper_valid_boundary,REQ-BVT-003,PASSED,12.5
-TC-004,Boundary,ECT Above Upper Bound triggers P0118,test_ect_above_upper_boundary_triggers_circuit_high,REQ-BVT-004,PASSED,12.5
-TC-005,Boundary,ECT Overheat Boundary triggers P0217 Emergency Stop,test_ect_overheat_critical_boundary,REQ-BVT-005,PASSED,12.5
-TC-006,Boundary,Battery Voltage 8.5V - 16.5V Limits,test_battery_voltage_boundaries,REQ-BVT-006,PASSED,12.5
-TC-007,Boundary,TPS 0% - 100% Clamping,test_throttle_limits_and_clamping,REQ-BVT-007,PASSED,12.5
-TC-008,Fault Recovery,ECT Short to GND Debounce & Healing,test_ect_short_gnd_fault_qualification_and_recovery,REQ-FDIR-001,PASSED,12.5
-TC-009,Fault Recovery,ASIL-B Dual TPS Mismatch Emergency Stop,test_asil_b_dual_tps_mismatch_emergency_stop,REQ-FDIR-002,PASSED,12.5
-TC-010,Fault Recovery,Thermal Overheat Emergency Stop & Max Cooling,test_critical_thermal_overheat_emergency_stop,REQ-FDIR-003,PASSED,12.5
-TC-011,Fault Recovery,CAN Loss & Heartbeat Recovery,test_can_communication_timeout_and_recovery,REQ-FDIR-004,PASSED,12.5
-TC-012,Fault Recovery,MAP Sensor Circuit High & Fallback Map,test_map_sensor_fault_injection_and_fallback,REQ-FDIR-005,PASSED,12.5
-TC-013,Functional,ECU Reset to State OFF,test_ecu_initial_state_off,REQ-FSM-001,PASSED,12.5
-TC-014,Functional,Ignition ON triggers POST to STANDBY,test_ecu_power_on_and_post_sequence,REQ-FSM-002,PASSED,12.5
-TC-015,Functional,Crank to RUNNING State Transition,test_engine_cranking_to_running,REQ-FSM-003,PASSED,12.5
-TC-016,Functional,Closed-loop Injection & Spark Advance,test_fuel_injection_and_spark_advance_dynamics,REQ-ACT-001,PASSED,12.5
-TC-017,Functional,Ignition OFF Controlled Shutdown,test_graceful_shutdown_on_ignition_off,REQ-FSM-004,PASSED,12.5
-TC-018,Sensors,Cold Start Fuel Enrichment below 60°C,test_cold_start_fuel_enrichment,REQ-SENS-001,PASSED,12.5
-TC-019,Sensors,Cooling Fan Dual-Threshold Activation,test_cooling_fan_activation_thresholds,REQ-ACT-002,PASSED,12.5
-TC-020,Sensors,Dual Throttle Correlation Sum Check,test_dual_throttle_correlation_valid,REQ-SENS-002,PASSED,12.5
-TC-021,Negative,Negative Throttle Value Clamping & P0122,test_negative_throttle_input_triggers_circuit_low,REQ-NEG-001,PASSED,12.5
-TC-022,Negative,Over-range Throttle >100% & P0123,test_over_range_throttle_input_triggers_circuit_high,REQ-NEG-002,PASSED,12.5
-TC-023,Negative,Starter Interlock Lockout during Engine Running,test_starter_lockout_while_engine_running,REQ-NEG-003,PASSED,12.5
-TC-024,Negative,Electrical Collapse & Low Voltage Fault,test_zero_voltage_electrical_collapse,REQ-NEG-004,PASSED,12.5
-TC-025,Negative,Disallow Crank Transition without Ignition,test_invalid_state_transition_no_crank_without_ignition,REQ-NEG-005,PASSED,12.5
+Test ID,Category,Description,Function,SRS Req,Expected Behavior,Status,Duration (ms)
+TC-001,Boundary,ECT Valid Lower Bound (-39°C),test_ect_lower_valid_boundary,REQ-BVT-001,"No DTC P0117, state remains RUNNING",PASSED,12.5
+TC-002,Boundary,ECT Below Lower Bound (-40°C),test_ect_below_lower_boundary_triggers_fault,REQ-BVT-002,"Qualify DTC P0117, enter DEGRADED mode",PASSED,12.5
+TC-003,Boundary,ECT Valid Upper Circuit Bound (139°C),test_ect_upper_valid_boundary,REQ-BVT-003,"No DTC P0118, thermal safeguard enforces ERROR",PASSED,12.5
+TC-004,Boundary,ECT Above Upper Bound (140°C),test_ect_above_upper_boundary_triggers_circuit_high,REQ-BVT-004,"Qualify DTC P0118, enforce ERROR",PASSED,12.5
+TC-005,Boundary,ECT Overheat Boundary (118.5°C),test_ect_overheat_critical_boundary,REQ-BVT-005,"Qualify DTC P0217, transition to ERROR (Emergency Stop)",PASSED,12.5
+TC-006,Boundary,Battery Voltage 8.5V - 16.5V Limits,test_battery_voltage_boundaries,REQ-BVT-006,"8.4V qualifies P0562, 16.6V qualifies P0563",PASSED,12.5
+TC-007,Boundary,TPS 0% and 100% Boundary Limits,test_throttle_limits_and_clamping,REQ-BVT-007,"Clamped within [0, 100]%, state remains RUNNING",PASSED,12.5
+TC-008,Fault Recovery,ECT Short to GND Debounce & Healing,test_ect_short_gnd_fault_qualification_and_recovery,REQ-FDIR-001,"Confirmed after 5 ticks, heals after 10 clean ticks",PASSED,12.5
+TC-009,Fault Recovery,Dual TPS Correlation Mismatch Safety Stop,test_safety_dual_tps_mismatch_emergency_stop,REQ-FDIR-002,Discrepancy > 7% qualifies P0121 -> fuel cut-off,PASSED,12.5
+TC-010,Fault Recovery,Thermal Overheat Emergency Stop & Max Cooling,test_critical_thermal_overheat_emergency_stop,REQ-FDIR-003,"125°C qualifies P0217, fan HIGH, state latches in ERROR",PASSED,12.5
+TC-011,Fault Recovery,CAN Loss & Heartbeat Recovery,test_can_communication_timeout_and_recovery,REQ-FDIR-004,"CAN loss qualifies U0100 (throttle capped at 25%), resumes on recovery",PASSED,12.5
+TC-012,Fault Recovery,MAP Sensor Circuit High & Fallback Map,test_map_sensor_fault_injection_and_fallback,REQ-FDIR-005,"MAP > 245 kPa qualifies P0106, default 101.3 kPa applied",PASSED,12.5
+TC-013,Functional,ECU Reset to State OFF,test_ecu_initial_state_off,REQ-FSM-001,"State is OFF, fuel pump and starter disabled",PASSED,12.5
+TC-014,Functional,Ignition ON triggers POST to STANDBY,test_ecu_power_on_and_post_sequence,REQ-FSM-002,POST completes in 3 ticks (30 ms) into STANDBY,PASSED,12.5
+TC-015,Functional,Cranking Threshold Boundary (450 RPM),test_engine_cranking_to_running,REQ-FSM-003,"RPM < 450 remains in STANDBY, RPM >= 450 transitions to RUNNING",PASSED,12.5
+TC-016,Functional,Independent Load & Speed Actuator Scaling,test_fuel_injection_and_spark_advance_dynamics,REQ-ACT-001,Fuel PW increases with MAP; spark advance increases with RPM,PASSED,12.5
+TC-017,Functional,Ignition OFF Controlled Shutdown,test_graceful_shutdown_on_ignition_off,REQ-FSM-004,State transitions SHUTDOWN -> OFF; actuators cut off,PASSED,12.5
+TC-018,Sensors,Cold Start Fuel Enrichment below 60°C,test_cold_start_fuel_enrichment,REQ-SENS-001,Cold PW (20°C) exceeds warm PW (85°C) at identical load,PASSED,12.5
+TC-019,Sensors,Cooling Fan Dual-Threshold Activation & Hysteresis,test_cooling_fan_activation_and_hysteresis,REQ-ACT-002,"OFF (<95°C), LOW (>=95°C), HIGH (>=105°C), remains LOW until <=88°C",PASSED,12.5
+TC-020,Sensors,Dual Throttle Complementary Sum Check,test_dual_throttle_correlation_valid,REQ-SENS-002,TPS1 + TPS2 = 100% accepted without DTC,PASSED,12.5
+TC-021,Sensors,Dual Throttle Discrepancy Fault Detection,test_dual_throttle_correlation_invalid_detection,REQ-SENS-003,Deviation > 7% qualifies DTC P0121 and enters ERROR,PASSED,12.5
+TC-022,Negative,Negative Throttle Input Clamping & P0122,test_negative_throttle_input_triggers_circuit_low,REQ-NEG-001,"TPS < 0% qualifies P0122, output clamped to 0%, MIL on",PASSED,12.5
+TC-023,Negative,Over-range Throttle Input & P0123,test_over_range_throttle_input_triggers_circuit_high,REQ-NEG-002,"TPS > 100% qualifies P0123, command derated <= 25%",PASSED,12.5
+TC-024,Negative,Starter Interlock Lockout during Engine Running,test_starter_lockout_while_engine_running,REQ-NEG-003,Crank request ignored when RPM > 400,PASSED,12.5
+TC-025,Negative,Zero Battery Voltage Collapse,test_zero_voltage_electrical_collapse,REQ-NEG-004,0.0V qualifies P0562 and transitions to DEGRADED,PASSED,12.5
+TC-026,Negative,Disallow Crank Transition without Ignition,test_invalid_state_transition_no_crank_without_ignition,REQ-NEG-005,Crank ignored if ignition switch is false; remains in OFF,PASSED,12.5

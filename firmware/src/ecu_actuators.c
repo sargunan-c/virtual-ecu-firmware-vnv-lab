@@ -8,8 +8,10 @@
 #include "ecu_sensors.h"
 #include <string.h>
 
+static fan_speed_t s_fan_state = FAN_OFF;
+
 void actuators_init(void) {
-    /* Actuator subsystem init */
+    s_fan_state = FAN_OFF;
 }
 
 void actuators_calculate(ecu_state_t current_state, 
@@ -26,6 +28,7 @@ void actuators_calculate(ecu_state_t current_state,
         case ECU_STATE_OFF:
         case ECU_STATE_INIT:
         case ECU_STATE_SHUTDOWN:
+            s_fan_state = FAN_OFF;
             actuators->fuel_injection_pw_ms = 0.0f;
             actuators->ignition_timing_deg = 0.0f;
             actuators->cooling_fan_state = FAN_OFF;
@@ -35,9 +38,10 @@ void actuators_calculate(ecu_state_t current_state,
             break;
 
         case ECU_STATE_STANDBY:
+            s_fan_state = (sensors->coolant_temp_c >= 100.0f) ? FAN_LOW_SPEED : FAN_OFF;
             actuators->fuel_injection_pw_ms = 0.0f;
             actuators->ignition_timing_deg = 0.0f;
-            actuators->cooling_fan_state = (sensors->coolant_temp_c >= 100.0f) ? FAN_LOW_SPEED : FAN_OFF;
+            actuators->cooling_fan_state = s_fan_state;
             actuators->throttle_actuator_pct = 0.0f;
             actuators->fuel_pump_relay = true;
             actuators->starter_relay_enable = (sensors->engine_rpm < 400 && sensors->battery_voltage_v >= 9.0f);
@@ -71,12 +75,14 @@ void actuators_calculate(ecu_state_t current_state,
 
             /* 4. Cooling Fan Control with Hysteresis */
             if (sensors->coolant_temp_c >= ECT_OVERHEAT_WARNING_C) {
-                actuators->cooling_fan_state = FAN_HIGH_SPEED;
+                s_fan_state = FAN_HIGH_SPEED;
             } else if (sensors->coolant_temp_c >= 95.0f) {
-                actuators->cooling_fan_state = FAN_LOW_SPEED;
+                s_fan_state = FAN_LOW_SPEED;
             } else if (sensors->coolant_temp_c <= 88.0f) {
-                actuators->cooling_fan_state = FAN_OFF;
+                s_fan_state = FAN_OFF;
             }
+            /* If between 88.0f and 95.0f, s_fan_state retains its previous value (hysteresis) */
+            actuators->cooling_fan_state = s_fan_state;
             break;
         }
 
@@ -96,15 +102,17 @@ void actuators_calculate(ecu_state_t current_state,
 
             /* Conservative cooling: keep fan at least at LOW_SPEED */
             if (sensors->coolant_temp_c >= 95.0f) {
-                actuators->cooling_fan_state = FAN_HIGH_SPEED;
+                s_fan_state = FAN_HIGH_SPEED;
             } else {
-                actuators->cooling_fan_state = FAN_LOW_SPEED;
+                s_fan_state = FAN_LOW_SPEED;
             }
+            actuators->cooling_fan_state = s_fan_state;
             break;
         }
 
         case ECU_STATE_ERROR:
             /* Emergency Stop: fuel cut-off, ignition kill, max cooling */
+            s_fan_state = FAN_HIGH_SPEED;
             actuators->fuel_injection_pw_ms = 0.0f;
             actuators->ignition_timing_deg = 0.0f;
             actuators->cooling_fan_state = FAN_HIGH_SPEED;
