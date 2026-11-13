@@ -1,297 +1,347 @@
 # Virtual ECU Firmware Verification & Validation (V&V) Automation Lab
 
-[![Firmware Language](https://img.shields.io/badge/Firmware-C11-00599C.svg)](firmware/)
-[![Automation Framework](https://img.shields.io/badge/Automation-Python_3.14-3776AB.svg)](framework/)
-[![Test Runner](https://img.shields.io/badge/Testing-Pytest_9.2-0A9EDC.svg)](tests/)
-[![Safety Standard](https://img.shields.io/badge/Safety_Standard-ISO_26262_ASIL--B_Concept-brightgreen.svg)](docs/SOFTWARE_REQUIREMENTS_SPECIFICATION.md)
-[![Diagnostics](https://img.shields.io/badge/Diagnostics-ISO_14229_UDS-orange.svg)](docs/ARCHITECTURE_DESIGN_DOCUMENT.md)
-[![Test Status](https://img.shields.io/badge/Test_Results-25%2F25_PASSED_(100%25)-success.svg)](reports/html/dashboard.html)
+[![Language](https://img.shields.io/badge/Language-C11-blue)](https://en.wikipedia.org/wiki/C_(programming_language))
+[![Python](https://img.shields.io/badge/Python-3.14-yellow)](https://www.python.org/)
+[![Testing](https://img.shields.io/badge/Testing-Pytest-green)](https://pytest.org/)
+[![Platform](https://img.shields.io/badge/Platform-Software%20in%20the%20Loop-lightgrey)](https://en.wikipedia.org/wiki/Software-in-the-loop)
+[![Status](https://img.shields.io/badge/Project-Completed-success)]()
 
----
+## Project Overview
 
-## Executive Summary
+The **Virtual ECU Firmware Verification & Validation Automation Lab** is a software-based automotive embedded systems project developed to demonstrate ECU firmware testing, validation, fault detection, diagnostic handling, and automated test reporting.
 
-The **Virtual ECU Firmware Verification & Validation (V&V) Automation Lab** is a professional, software-in-the-loop (SIL) test automation ecosystem modeled after Tier-1 automotive embedded software engineering workflows. It provides a host-simulated **Powertrain & Thermal Control Unit (PTCU)** developed in **C11**, coupled to a deterministic **Python / Pytest automation harness** via native C-ABI bindings (`ctypes`).
+The project simulates an Electronic Control Unit (ECU) environment using Embedded C and Python. It follows a Software-in-the-Loop (SIL) approach, allowing firmware behavior to be tested without requiring physical ECU hardware.
 
-The project demonstrates end-to-end verification and validation of automotive ECU firmware—encompassing deterministic finite state machine (FSM) control, AUTOSAR DEM / ISO 14229 UDS diagnostic debounce algorithms, ISO 26262 ASIL-B dual-channel sensor plausibility interlocks, non-intrusive runtime fault injection, boundary value analysis (BVT), negative testing, and automated HTML5 dashboard reporting.
+The system integrates C-based ECU firmware with Python-based automated testing using `ctypes` and `pytest`.
 
-> **Note on Scope:** This is a 100% software-only simulation environment. No physical hardware boards, microcontrollers, or external CAN transceivers are required. All ECU operations, physics, and sensor lines are simulated virtually.
+The primary objective is to demonstrate practical concepts used in automotive embedded software verification, including state machine validation, sensor monitoring, fault injection, diagnostic handling, and safety-oriented testing.
 
----
+## Project Objectives
+
+- Develop a software-based Virtual ECU using Embedded C.
+- Implement ECU operating states and state transitions.
+- Simulate automotive sensor inputs.
+- Validate sensor signals and detect abnormal conditions.
+- Implement fault injection and fault recovery scenarios.
+- Demonstrate automotive diagnostic concepts based on ISO 14229 (UDS).
+- Demonstrate safety-oriented development and testing concepts inspired by ISO 26262.
+- Automate firmware verification using Python and Pytest.
+- Generate machine-readable and human-readable test reports.
 
 ## System Architecture
 
-```
-+---------------------------------------------------------------------------------+
-|                       AUTOMATED TEST SUITE (PYTEST 9.2)                         |
-|  [Functional Tests]   [Boundary Tests]   [Negative Tests]   [Fault Recovery]    |
-+---------------------------------------------------------------------------------+
-                                       |
-                                       v
-+---------------------------------------------------------------------------------+
-|                       AUTOMATION & HARNESS LAYER (PYTHON)                       |
-|  VirtualEcuAdapter (ctypes)  <--->  FaultInjector  <--->  VirtualSensors        |
-|  TelemetryLogger (CSV/JSON)  <--->  ReportGenerator (HTML Dashboard)            |
-+---------------------------------------------------------------------------------+
-                                       |  (Native C-ABI Shared Library Calls)
-                                       v
-+---------------------------------------------------------------------------------+
-|                     VIRTUAL ECU FIRMWARE ENGINE (C11 DLL)                       |
-|                                                                                 |
-|  +---------------------------------------------------------------------------+  |
-|  | Fault Injection Hook (Signal interception & physical manipulation)        |  |
-|  +---------------------------------------------------------------------------+  |
-|                                      |                                          |
-|                                      v                                          |
-|  +---------------------+   +---------------------+   +---------------------+    |
-|  | Sensor Acquisition  |-->|  Diagnostic Manager |-->| Finite State Machine|    |
-|  | - Range validation  |   |  - Debounce counter |   | - OFF, INIT, STANDBY|    |
-|  | - ASIL-B Dual TPS   |   |  - UDS ISO 14229    |   | - RUNNING, DEGRADED |    |
-|  | - Fallback maps     |   |  - DTC confirm/heal |   | - ERROR, SHUTDOWN   |    |
-|  +---------------------+   +---------------------+   +---------------------+    |
-|                                                                 |               |
-|                                                                 v               |
-|                                                      +---------------------+    |
-|                                                      | Actuator Controller |    |
-|                                                      | - Fuel Injection PW |    |
-|                                                      | - Spark Advance     |    |
-|                                                      | - Cooling Fan PWM   |    |
-|                                                      | - Check Engine MIL  |    |
-|                                                      +---------------------+    |
-+---------------------------------------------------------------------------------+
+The project follows a layered Software-in-the-Loop architecture.
+
+```text
+          Python Automation Layer
+                    |
+                    v
+             Pytest Framework
+                    |
+                    v
+              Python ctypes
+                    |
+                    v
+           C Firmware Interface
+                    |
+                    v
+             Virtual ECU Core
+                    |
+       +------------+------------+
+       |            |            |
+       v            v            v
+   ECU State    Sensor        Diagnostic
+   Machine      Monitoring    Handling
+       |            |            |
+       +------------+------------+
+                    |
+                    v
+             Fault Injection
+                    |
+                    v
+             Test Results
+                    |
+          +---------+---------+
+          |         |         |
+          v         v         v
+         JSON      CSV       HTML
+                 Reports    Dashboard
 ```
 
----
+## Key Features
 
-## Core Engineering Features
+### 1. Virtual ECU Firmware
 
-### 1. Deterministic ECU Operating State Machine (FSM)
-Orchestrates vehicle operational modes across 7 strict states with 10 ms cycle rate:
-- **`ECU_STATE_OFF`:** Zero actuator activity, waiting for ignition switch.
-- **`ECU_STATE_INIT`:** 30 ms Power-On Self Test (POST) checking system integrity.
-- **`ECU_STATE_STANDBY`:** Ignition ON, fuel pump primed, starter enabled, waiting for crank.
-- **`ECU_STATE_RUNNING`:** Closed-loop engine speed and throttle plate regulation.
-- **`ECU_STATE_DEGRADED` (Limp-Home):** Safe fallback maps active, throttle capped at 25%, MIL lit.
-- **`ECU_STATE_ERROR` (Emergency Stop):** Immediate fuel cut-off, spark advance killed, high-speed cooling fan active, MIL blinking.
-- **`ECU_STATE_SHUTDOWN`:** Diagnostic non-volatile record flushing before power-down.
+- Developed using Embedded C11.
+- Simulates ECU firmware behavior without physical hardware.
+- Provides a C-based firmware interface for Python integration.
+- Supports software-level validation of ECU behavior.
 
-### 2. ISO 14229 / AUTOSAR DEM Diagnostic Manager
-- Asymmetric debounce timing:
-  - **Qualification:** 5 consecutive failure cycles (50 ms) confirms DTC and illuminates MIL.
-  - **Self-Healing:** 10 consecutive clean cycles (100 ms) heals confirmed DTC and extinguishes MIL.
-- Monitored DTCs:
-  - `P0117` / `P0118`: Engine Coolant Temperature Circuit Low / High
-  - `P0217`: Engine Coolant Over-temperature (> 118°C Critical Overheat)
-  - `P0121`: Dual Throttle Position Sensor Correlation Mismatch (ASIL-B)
-  - `P0122` / `P0123`: Throttle Circuit Low / High
-  - `P0106`: Manifold Absolute Pressure Range Fault
-  - `P0562` / `P0563`: Battery Undervoltage (< 8.5V) / Overvoltage (> 16.5V)
-  - `U0100`: Lost CAN Communication with Vehicle Gateway
+### 2. ECU State Machine
 
-### 3. ISO 26262 ASIL-B Electronic Throttle Plausibility
-Complementary dual-potentiometer verification:
-$$\left| \text{TPS}_1 + \text{TPS}_2 - 100\% \right| \le 7.0\%$$
-Any discrepancy exceeding 7% triggers `DTC_P0121` and commands an immediate transition to `ECU_STATE_ERROR` (Emergency Stop) within 50 ms.
+The Virtual ECU implements seven operating states:
 
-### 4. Non-Intrusive Runtime Fault Injection Engine
-Supports software-directed electrical and protocol failure simulation:
-- Signal short to Ground (`0V` / `-45°C` / `-5%`)
-- Signal short to Power (`VCC` / `150°C` / `115%`)
-- Sensor open circuit / floating pull-down
-- Sensor stuck-at value
-- CAN bus-off / heartbeat timeout
+| State | Description |
+|---|---|
+| OFF | ECU is powered off |
+| INIT | ECU initialization |
+| STANDBY | ECU is initialized and waiting |
+| RUNNING | Normal operating condition |
+| DEGRADED | Limited operation due to detected faults |
+| ERROR | Critical error condition |
+| SHUTDOWN | ECU shutdown sequence |
 
----
+The state machine is used to validate operating conditions, transitions, and fault-related behavior.
+
+### 3. Virtual Sensor Simulation
+
+The project simulates automotive sensor inputs to validate ECU responses.
+
+Sensor validation includes:
+
+- Sensor input monitoring.
+- Signal range validation.
+- Abnormal input detection.
+- Dual-channel Throttle Position Sensor (TPS) plausibility checking.
+- Fault condition simulation.
+
+### 4. Fault Injection and Handling
+
+Fault injection is used to simulate abnormal operating conditions and evaluate firmware responses.
+
+Examples include:
+
+- Sensor signal faults.
+- Out-of-range sensor values.
+- TPS channel mismatch.
+- Diagnostic fault conditions.
+- Fault detection and recovery scenarios.
+
+### 5. Automotive Diagnostic Concepts
+
+The project demonstrates selected diagnostic concepts based on **ISO 14229 – Unified Diagnostic Services (UDS)**.
+
+Diagnostic-related functionality includes:
+
+- Fault condition detection.
+- Diagnostic status handling.
+- Fault monitoring.
+- ECU response validation.
+
+This is a software simulation of selected diagnostic concepts, not a complete implementation or certification of the ISO 14229 standard.
+
+### 6. Safety-Oriented Validation
+
+The project demonstrates selected safety-oriented verification concepts inspired by **ISO 26262**, including:
+
+- Fault detection.
+- Sensor plausibility monitoring.
+- Safe-state-oriented behavior.
+- Degraded operating conditions.
+- Fault response validation.
+
+These are educational and simulation-level demonstrations of safety concepts. The project is not ISO 26262 certified and does not establish an ASIL-B compliance claim.
+
+## Technology Stack
+
+| Technology | Purpose |
+|---|---|
+| Embedded C11 | Virtual ECU firmware development |
+| Python 3.14 | Test automation |
+| Pytest | Automated test execution |
+| ctypes | Python-to-C firmware integration |
+| JSON | Structured test result reporting |
+| CSV | Tabular test reporting |
+| HTML | Test dashboard and report visualization |
+| Git & GitHub | Version control and project hosting |
+| Vercel | Static dashboard deployment |
+
+## Testing and Validation
+
+The project uses Python-based automated testing to validate the Virtual ECU firmware.
+
+The test automation framework communicates with the C firmware through the Python `ctypes` interface.
+
+Validation areas include:
+
+- ECU initialization and state transitions.
+- Normal operating behavior.
+- Sensor input validation.
+- Dual-channel TPS plausibility.
+- Fault injection.
+- Diagnostic behavior.
+- Error handling and recovery.
+- ECU shutdown behavior.
+
+### Test Execution
+
+Run the automated test suite using:
+
+```bash
+pytest -v
+```
+
+### Test Results
+
+**Reported test execution: 25 / 25 tests passed.**
+
+| Metric | Result |
+|---|---:|
+| Total Test Cases | 25 |
+| Passed | 25 |
+| Failed | 0 |
+| Pass Rate | 100% |
+
+The results above represent the reported execution of this project’s automated test suite. They do not represent complete automotive system validation or certification.
+
+## Test Reports and Dashboard
+
+The project generates test reports in three formats:
+
+| Report Format | Purpose |
+|---|---|
+| JSON | Machine-readable test results |
+| CSV | Tabular test results |
+| HTML | Browser-based test report dashboard |
+
+The HTML dashboard provides a visual representation of the generated test results.
+
+**Live Dashboard:**  
+[Open Virtual ECU Test Dashboard](YOUR_VERCEL_URL/dashboard.html)
+
+> Replace `YOUR_VERCEL_URL` with the actual Vercel deployment URL after deployment.
 
 ## Repository Structure
 
-```
-virtual_ecu_vnv_lab/
-├── firmware/                        # C11 Virtual ECU Source Code
-│   ├── include/                     # Public and subsystem header files
-│   │   ├── ecu_types.h              # Data structures, enums, DTC bitmasks
-│   │   ├── ecu_firmware.h           # Top-level API & DLL export definitions
-│   │   ├── ecu_state_machine.h      # FSM definitions
-│   │   ├── ecu_diagnostics.h        # OBD-II / ISO 14229 DEM header
-│   │   ├── ecu_sensors.h            # Sensor processing & bounds definitions
-│   │   ├── ecu_actuators.h          # Actuator output calculations
-│   │   └── ecu_fault_injection.h    # Fault injection interceptor header
-│   ├── src/                         # C11 Implementation files
-│   │   ├── ecu_firmware.c           # Master cycle coordinator
-│   │   ├── ecu_state_machine.c      # FSM implementation
-│   │   ├── ecu_diagnostics.c        # DTC debounce & MIL manager
-│   │   ├── ecu_sensors.c            # Boundary validation & dual TPS correlation
-│   │   ├── ecu_actuators.c          # Injection PW, timing & fan control
-│   │   ├── ecu_fault_injection.c    # Signal corruption hooks
-│   │   └── main.c                   # Standalone CLI binary runner
-│   └── build/                       # Compiled artifacts (virtual_ecu.dll, virtual_ecu.exe)
-├── simulation/                      # Simulation Modules
-│   ├── sensors/virtual_sensors.py   # Physical sensor models & thermal dynamics
-│   └── fault_injection/fault_injector.py # Python fault injection interface
-├── framework/                       # Test Harness & Reporting Infrastructure
-│   ├── harness/ecu_adapter.py       # Ctypes C-ABI bridge to virtual_ecu.dll
-│   ├── telemetry/logger.py          # High-rate cycle snapshot logger
-│   └── reporting/report_generator.py # Standalone HTML5 dashboard generator
-├── tests/                           # Pytest Test Automation Suites
-│   ├── conftest.py                  # Pytest fixtures and harness setup
-│   ├── functional/                  # Normal operation & state transitions
-│   ├── boundary/                    # Boundary Value Analysis (BVT)
-│   ├── negative/                    # Error handling & illegal state transitions
-│   └── fault_recovery/              # FDIR & self-healing verification
-├── test_data/                       # Calibration and Scenario Input Files
-│   ├── scenarios.json               # Pre-configured test scenario vectors
-│   └── sensor_profiles.csv          # Driving cycle test profiles
-├── reports/                         # Generated Test Verification Artifacts
-│   ├── html/                        # Interactive dashboard & Pytest reports
-│   │   ├── dashboard.html           # Interactive visual dashboard
-│   │   └── pytest_report.html       # Pytest HTML execution trace
-│   ├── json/                        # Structured machine-readable results
-│   └── csv/                         # Requirements traceability test sheets
-├── docs/                            # Professional Engineering Documentation
-│   ├── SOFTWARE_REQUIREMENTS_SPECIFICATION.md
-│   ├── ARCHITECTURE_DESIGN_DOCUMENT.md
-│   ├── TEST_PLAN_AND_STRATEGY.md
-│   ├── TEST_CASE_SPECIFICATION.md
-│   ├── TECHNICAL_CHALLENGES_AND_SOLUTIONS.md
-│   └── PORTFOLIO_DEMO_GUIDE.md
-├── build.ps1                        # PowerShell one-click compiler
-├── Makefile                         # Standard Make build script
-├── run_all_tests.py                 # Master automated test execution runner
-├── run_demo_simulation.py           # Mission driving cycle telemetry generator
-└── README.md                        # Master project documentation
+The project is organized into firmware, automation, reporting, and documentation components.
+
+```text
+virtual-ecu-firmware-vnv-lab/
+│
+├── firmware/
+│   └── C-based Virtual ECU firmware
+│
+├── tests/
+│   └── Python Pytest automation tests
+│
+├── reports/
+│   ├── JSON test reports
+│   ├── CSV test reports
+│   └── html/
+│       └── dashboard.html
+│
+├── README.md
+└── .gitignore
 ```
 
----
+*Note: This is a logical overview. Keep the actual folder and file names consistent with the files in the GitHub repository.*
 
-## Quick Start & Execution Guide
+## How to Run the Project
 
 ### Prerequisites
-- GCC / MinGW C Compiler (with C11 standard support)
-- Python 3.10+
-- Pytest and Pytest-HTML (`pip install pytest pytest-html`)
 
-### 1. Build the Firmware
-Compile both the shared library (`virtual_ecu.dll`) and standalone executable (`virtual_ecu.exe`):
+Install the following:
 
-**Via PowerShell:**
-```powershell
-./build.ps1
-```
+- Python 3.14
+- GCC or another compatible C compiler
+- Git
 
-**Via Make:**
+### Step 1: Clone the Repository
+
 ```bash
-make
+git clone https://github.com/sargunan-c/virtual-ecu-firmware-vnv-lab.git
 ```
 
-### 2. Run the Standalone Virtual ECU CLI
-Execute the C firmware binary directly:
-```powershell
-./firmware/build/virtual_ecu.exe
+### Step 2: Navigate to the Project
+
+```bash
+cd virtual-ecu-firmware-vnv-lab
 ```
 
-### 3. Run the Automated Test Suite (Pytest)
-Run all 25 test cases across Boundary, Negative, Functional, and Fault Recovery suites:
-```powershell
-python run_all_tests.py
+### Step 3: Install Pytest
+
+```bash
+python -m pip install pytest
 ```
 
-### 4. Run Mission Simulation & Export Telemetry
-Simulate a complete driving cycle with live fault injection and recovery:
-```powershell
-python run_demo_simulation.py
+### Step 4: Run Automated Tests
+
+```bash
+pytest -v
 ```
 
----
+### Step 5: View the Test Dashboard
 
-## Test Execution Results
+Open the generated HTML dashboard in a web browser.
 
-```
-======================================================================
-  AUTOMOTIVE VIRTUAL ECU V&V AUTOMATION LAB - TEST EXECUTION RUNNER
-======================================================================
-[Runner] Executing test suite via pytest...
-============================= test session starts =============================
-platform win32 -- Python 3.14.6, pytest-9.2.0, pluggy-1.7.0
-rootdir: C:\...\virtual_ecu_vnv_lab
-plugins: anyio-4.15.1, html-4.2.0, metadata-3.1.1
-collected 25 items
+The dashboard is available at:
 
-tests/boundary/test_boundary_values.py::test_ect_lower_valid_boundary PASSED [  4%]
-tests/boundary/test_boundary_values.py::test_ect_below_lower_boundary_triggers_fault PASSED [  8%]
-tests/boundary/test_boundary_values.py::test_ect_upper_valid_boundary PASSED [ 12%]
-tests/boundary/test_boundary_values.py::test_ect_above_upper_boundary_triggers_circuit_high PASSED [ 16%]
-tests/boundary/test_boundary_values.py::test_ect_overheat_critical_boundary PASSED [ 20%]
-tests/boundary/test_boundary_values.py::test_battery_voltage_boundaries PASSED [ 24%]
-tests/boundary/test_boundary_values.py::test_throttle_limits_and_clamping PASSED [ 28%]
-tests/fault_recovery/test_fault_detection_recovery.py::test_ect_short_gnd_fault_qualification_and_recovery PASSED [ 32%]
-tests/fault_recovery/test_fault_detection_recovery.py::test_asil_b_dual_tps_mismatch_emergency_stop PASSED [ 36%]
-tests/fault_recovery/test_fault_detection_recovery.py::test_critical_thermal_overheat_emergency_stop PASSED [ 40%]
-tests/fault_recovery/test_fault_detection_recovery.py::test_can_communication_timeout_and_recovery PASSED [ 44%]
-tests/fault_recovery/test_fault_detection_recovery.py::test_map_sensor_fault_injection_and_fallback PASSED [ 48%]
-tests/functional/test_normal_operation.py::test_ecu_initial_state_off PASSED [ 52%]
-tests/functional/test_normal_operation.py::test_ecu_power_on_and_post_sequence PASSED [ 56%]
-tests/functional/test_normal_operation.py::test_engine_cranking_to_running PASSED [ 60%]
-tests/functional/test_fuel_injection_and_spark_advance_dynamics PASSED [ 64%]
-tests/functional/test_graceful_shutdown_on_ignition_off PASSED [ 68%]
-tests/functional/test_sensor_validation.py::test_cold_start_fuel_enrichment PASSED [ 72%]
-tests/functional/test_sensor_validation.py::test_cooling_fan_activation_thresholds PASSED [ 76%]
-tests/functional/test_sensor_validation.py::test_dual_throttle_correlation_valid PASSED [ 80%]
-tests/negative/test_negative_scenarios.py::test_negative_throttle_input_triggers_circuit_low PASSED [ 84%]
-tests/negative/test_negative_scenarios.py::test_over_range_throttle_input_triggers_circuit_high PASSED [ 88%]
-tests/negative/test_negative_scenarios.py::test_starter_lockout_while_engine_running PASSED [ 92%]
-tests/negative/test_negative_scenarios.py::test_zero_voltage_electrical_collapse PASSED [ 96%]
-tests/negative/test_negative_scenarios.py::test_invalid_state_transition_no_crank_without_ignition PASSED [100%]
-
-============================= 25 passed in 0.38s ==============================
-[Report] Generated JSON results at: reports/json/test_results.json
-[Report] Generated CSV results at: reports/csv/test_results.csv
-[Report] Generated Interactive Dashboard at: reports/html/dashboard.html
-======================================================================
-  EXECUTION SUMMARY: 25/25 PASSED (100.0%) in 4.17s
-======================================================================
+```text
+reports/html/dashboard.html
 ```
 
----
+The exact report-generation and firmware-build commands depend on the scripts included in the repository.
 
-## Interactive HTML5 Test Dashboard Preview
+## Requirements Traceability
 
-The test automation runner automatically compiles an interactive, self-contained dashboard located at:
-`reports/html/dashboard.html`
+The project demonstrates a basic verification workflow connecting firmware behavior with test scenarios.
 
-### Key Visual Components:
-- **KPI Summary Cards:** Total Tests (25), Passed (25), Failed (0), Pass Rate (100%), Total Execution Time.
-- **Category Coverage:** Visual breakdown across Boundary, Negative, Functional, Sensor, and Fault Recovery tests.
-- **State Machine Verification Grid:** All 7 operating states validated against unauthorized state transitions.
-- **Requirements Traceability Table:** Interactive table mapping each test to its specific Software Requirement ID (`REQ-BVT`, `REQ-FDIR`, `REQ-FSM`).
+| Area | Verification Focus |
+|---|---|
+| ECU State Machine | State transition validation |
+| Sensor Monitoring | Input range and signal validation |
+| TPS Plausibility | Dual-channel signal comparison |
+| Fault Injection | Abnormal condition simulation |
+| Diagnostics | Selected UDS diagnostic concepts |
+| Safety Behavior | Fault response and degraded-state validation |
+| Test Automation | Repeatable Pytest execution |
+| Reporting | JSON, CSV, and HTML report generation |
 
----
+## Skills Demonstrated
 
-## Requirements Traceability Summary
+- Embedded C Programming (C11)
+- Automotive Embedded Systems
+- ECU Firmware Verification and Validation
+- Software-in-the-Loop (SIL) Testing
+- Python Test Automation
+- Pytest Framework
+- C and Python Integration using ctypes
+- Finite State Machine (FSM) Validation
+- Sensor Signal Validation
+- Fault Injection Testing
+- Automotive Diagnostic Concepts (ISO 14229 / UDS)
+- Functional Safety Concepts (ISO 26262)
+- Test Reporting and Documentation
+- Git and GitHub
+- Vercel Static Deployment
 
-| Category | Tests | SRS Traceability | Pass Rate |
-| :--- | :---: | :--- | :---: |
-| **Boundary Value Analysis (BVT)** | 7 | `REQ-BVT-001` through `REQ-BVT-007` | **100%** |
-| **Fault Detection & Recovery (FDIR)** | 5 | `REQ-FDIR-001` through `REQ-FDIR-005` | **100%** |
-| **Functional & State Transitions** | 5 | `REQ-FSM-001` - `004`, `REQ-ACT-001` | **100%** |
-| **Sensor Validation & Redundancy** | 3 | `REQ-SENS-001`, `REQ-SENS-002`, `REQ-ACT-002` | **100%** |
-| **Negative & Robustness Testing** | 5 | `REQ-NEG-001` through `REQ-NEG-005` | **100%** |
-| **Total** | **25** | **100% Requirements Coverage** | **100%** |
+## Project Highlights
 
----
-
-## Industry Relevance & Automotive Skills Demonstrated
-
-This project demonstrates core competencies sought by automotive OEMs and Tier-1 suppliers in India (Tata Motors, Mahindra, Bosch India, Continental, KPIT, Tata Elxsi, Ather Energy):
-
-- **Automotive Embedded C (C11):** MISRA-C compliant patterns, zero heap allocation, deterministic timing, struct packing.
-- **ECU Concepts & State Machines:** Multi-state power control, cold-start warmup enrichment, speed-density fuel calculation, starter interlocks.
-- **Automotive Diagnostics (ISO 14229 / AUTOSAR DEM):** DTC qualification/healing debounce algorithms, MIL lamp management.
-- **Functional Safety (ISO 26262 ASIL-B Concept):** Dual-channel throttle plausibility, fail-safe degradation, emergency stop fuel cut-off.
-- **Verification & Validation (V&V):** Boundary value testing, negative testing, automated regression test authoring using Python and Pytest.
-- **Software Test Tooling:** Native C-ABI bindings via `ctypes`, automated HTML/JSON/CSV reporting, continuous integration readiness.
-
----
+- Developed a software-based Virtual ECU using Embedded C11.
+- Integrated C firmware with Python automation using ctypes.
+- Implemented a seven-state ECU state machine.
+- Simulated automotive sensor inputs and TPS plausibility checks.
+- Demonstrated fault injection and diagnostic handling.
+- Automated firmware validation using Pytest.
+- Reported 25 successful automated test cases.
+- Generated JSON, CSV, and HTML test reports.
+- Deployed the HTML dashboard for browser-based viewing.
 
 ## Disclaimer
-*This software is an engineering verification and validation simulation laboratory developed strictly for educational, technical demonstration, and career portfolio purposes. It does not claim OEM vehicle certification or physical road validation.*
 
+This project is an educational and portfolio demonstration of automotive embedded firmware verification and validation concepts.
+
+It is a software-only simulation and has not been validated on physical automotive ECU hardware.
+
+The project does not claim ISO 26262 certification, ASIL-B certification, production readiness, or complete compliance with ISO 14229.
+
+## Author
+
+**Sargunan C**
+
+GitHub:  
+https://github.com/sargunan-c
+
+---
+
+*Virtual ECU Firmware Verification & Validation Automation Lab – Embedded C | Python | Pytest | Automotive Software Testing*
