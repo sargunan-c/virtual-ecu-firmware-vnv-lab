@@ -78,3 +78,4 @@ def test_graceful_shutdown_on_ignition_off(ecu):
     assert ecu.get_state() == EcuState.OFF, f"Expected OFF after shutdown, got {ecu.get_state_name()}"
     telem = ecu.get_telemetry()
     assert telem["actuators"]["fuel_pump"] is False
+

@@ -40,3 +40,4 @@ This document highlights critical engineering problems encountered during the de
   1. Built the ECU firmware in pure C11 compiled into both a native Windows DLL (`virtual_ecu.dll`) and an independent CLI executable (`virtual_ecu.exe`).
   2. Created software-simulated sensor models that emulate physical dynamics (thermal warm-up lag, speed-density manifold pressure curves, battery alternator voltage curves).
   3. Engineered an integrated fault injection interceptor that operates between the virtual sensors and the ECU's input acquisition layer, allowing non-intrusive runtime fault injection without recompilation.
+

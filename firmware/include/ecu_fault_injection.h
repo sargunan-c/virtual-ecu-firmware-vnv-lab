@@ -25,3 +25,4 @@ uint8_t fault_inject_get_active_mask(void);
 #endif
 
 #endif /* ECU_FAULT_INJECTION_H */
+

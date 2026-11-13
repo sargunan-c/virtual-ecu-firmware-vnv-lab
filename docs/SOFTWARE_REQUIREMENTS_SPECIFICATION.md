@@ -63,3 +63,4 @@ This specification defines the functional, diagnostic, safety, and boundary requ
 | **REQ-NEG-003** | Starter crank while RPM > 400 | Starter relay lockout (`starter_enable = false`) |
 | **REQ-NEG-004** | Battery Voltage drops to 0.0V | Immediate low-voltage fault qualification |
 | **REQ-NEG-005** | Crank command without Ignition | Inhibit starter and fuel pump; remain in OFF |
+

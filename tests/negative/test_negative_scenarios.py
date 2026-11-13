@@ -51,3 +51,4 @@ def test_invalid_state_transition_no_crank_without_ignition(ecu):
 
     assert ecu.get_state() == EcuState.OFF
     assert ecu.get_telemetry()["actuators"]["fuel_pw_ms"] == 0.0
+

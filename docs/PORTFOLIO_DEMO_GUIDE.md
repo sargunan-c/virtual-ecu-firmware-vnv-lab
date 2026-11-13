@@ -78,3 +78,4 @@ Check out the architecture, code, and documentation on GitHub:
 5. **Step 5: Fault Injection & Self-Healing Telemetry Demo (1 minute)**
    - Run `python run_demo_simulation.py`.
    - Explain how the ECT short-to-GND fault was injected at cycle 60, triggering DTC P0117 after 5 debounce cycles, forcing Limp-Home mode, and automatically healing back to RUNNING after fault removal.
+

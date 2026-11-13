@@ -18,3 +18,4 @@ exe:
 
 clean:
 	rm -f firmware/build/*.dll firmware/build/*.exe firmware/build/*.o
+

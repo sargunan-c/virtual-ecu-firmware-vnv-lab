@@ -82,3 +82,4 @@ def test_throttle_limits_and_clamping(ecu):
     ecu.set_inputs(tps_pct=100.0, tps2_pct=0.0)
     ecu.step(3)
     assert ecu.get_telemetry()["actuators"]["throttle_cmd_pct"] == 100.0
+

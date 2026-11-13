@@ -146,3 +146,4 @@ def test_map_sensor_fault_injection_and_fallback(ecu, fault_injector):
 
     assert not ecu.is_dtc_active(DtcCode.P0106_MAP_RANGE_PERFORMANCE)
     assert ecu.get_state() == EcuState.RUNNING
+

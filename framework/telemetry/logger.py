@@ -60,3 +60,4 @@ class TelemetryLogger:
             json.dump(self.records, f, indent=2)
 
         return filepath
+

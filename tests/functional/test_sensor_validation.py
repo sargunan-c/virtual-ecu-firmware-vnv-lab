@@ -52,3 +52,4 @@ def test_dual_throttle_correlation_valid(ecu):
 
     assert not ecu.is_dtc_active(DtcCode.P0121_TPS_RANGE_PERFORMANCE)
     assert ecu.get_state() == EcuState.RUNNING
+

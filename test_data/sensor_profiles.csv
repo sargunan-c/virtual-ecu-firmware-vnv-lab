@@ -4,3 +4,4 @@ SCEN_02,-35.0,0.0,98.0,11.5,0,STANDBY,Sub-zero Freeze Standby
 SCEN_03,98.0,40.0,140.0,14.2,3200,RUNNING,High Load Fan Low
 SCEN_04,119.0,30.0,110.0,13.5,2800,ERROR,Critical Overheat Shutdown
 SCEN_05,85.0,20.0,101.3,7.5,1500,DEGRADED,Severe Undervoltage Limp
+

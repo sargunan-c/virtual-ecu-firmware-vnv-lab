@@ -47,3 +47,4 @@ Output artifacts are automatically generated in `reports/`:
 - `reports/html/pytest_report.html` (Pytest HTML execution trace)
 - `reports/json/test_results.json` (Machine-readable CI/CD artifact)
 - `reports/csv/test_results.csv` (Traceability summary sheet)
+

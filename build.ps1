@@ -40,3 +40,4 @@ gcc -std=c11 -Wall -Wextra -O2 -I firmware/include `
 
 Write-Host ">>> Build completed successfully!" -ForegroundColor Green
 Write-Host "    Artifacts: $buildDir/virtual_ecu.dll, $buildDir/virtual_ecu.exe"
+

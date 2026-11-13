@@ -128,3 +128,4 @@ void fault_inject_apply(sensor_inputs_t *inputs) {
         }
     }
 }
+

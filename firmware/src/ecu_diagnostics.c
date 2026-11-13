@@ -171,3 +171,4 @@ mil_status_t diag_calculate_mil_status(void) {
 void diag_step(void) {
     s_diag_ticks++;
 }
+

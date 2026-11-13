@@ -55,3 +55,4 @@ class FaultInjector:
 
     def clear_all(self):
         self.adapter.clear_all_faults()
+

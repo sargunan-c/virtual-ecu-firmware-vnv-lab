@@ -386,3 +386,4 @@ class ReportGenerator:
             f.write(dashboard_html)
 
         return str(html_file)
+

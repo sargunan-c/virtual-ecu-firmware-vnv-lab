@@ -24,3 +24,4 @@ void sm_request_transition(ecu_state_t requested_state);
 #endif
 
 #endif /* ECU_STATE_MACHINE_H */
+

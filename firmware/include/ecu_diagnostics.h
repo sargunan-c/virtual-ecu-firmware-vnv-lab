@@ -28,3 +28,4 @@ void diag_step(void);
 #endif
 
 #endif /* ECU_DIAGNOSTICS_H */
+

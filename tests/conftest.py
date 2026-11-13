@@ -33,3 +33,4 @@ def fault_injector(ecu):
 def virtual_sensors():
     """Provides virtual sensor signal generator."""
     return VirtualSensors()
+

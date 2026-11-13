@@ -122,3 +122,4 @@ Each Diagnostic Trouble Code (DTC) adheres to automotive debounce standards:
 - Zero dynamic heap allocation (`malloc` free) during runtime.
 - Deterministic 10ms execution cycle rate (100 Hz loop).
 - Clean C ABI boundary enabling sub-millisecond execution of 25+ integration scenarios in < 0.5 seconds on host PC.
+

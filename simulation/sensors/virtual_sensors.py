@@ -63,3 +63,4 @@ class VirtualSensors:
         tps1 = max(0.0, min(100.0, commanded_pct))
         tps2 = max(0.0, min(100.0, (100.0 - tps1) + mismatch_offset))
         return tps1, tps2
+

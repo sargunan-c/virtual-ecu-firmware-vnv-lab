@@ -36,3 +36,4 @@
 | **TC-023** | `test_starter_lockout_while_engine_running` | Negative | `REQ-NEG-003` | Starter crank request while running is locked out | **PASS** |
 | **TC-024** | `test_zero_voltage_electrical_collapse` | Negative | `REQ-NEG-004` | Sudden 0V battery drop qualifies undervoltage | **PASS** |
 | **TC-025** | `test_invalid_state_transition_no_crank_without_ignition` | Negative | `REQ-NEG-005` | Cranking without ignition remains in OFF state | **PASS** |
+

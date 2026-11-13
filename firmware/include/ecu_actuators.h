@@ -22,3 +22,4 @@ void actuators_calculate(ecu_state_t current_state,
 #endif
 
 #endif /* ECU_ACTUATORS_H */
+

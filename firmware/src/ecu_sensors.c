@@ -69,3 +69,4 @@ void sensors_process(const sensor_inputs_t *raw_in, sensor_inputs_t *filtered_ou
 bool sensors_are_plausible(void) {
     return (!diag_has_critical_dtc());
 }
+
